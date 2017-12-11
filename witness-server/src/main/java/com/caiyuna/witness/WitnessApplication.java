@@ -8,6 +8,7 @@ import javax.net.ssl.SSLException;
 import org.apache.catalina.connector.Connector;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 import com.caiyuna.witness.scene.SecureSceneServer;
 
@@ -16,17 +17,17 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
-
 @SpringBootApplication
-public class WitnessApplication 
-{
+public class WitnessApplication {
     public static void main(String[] args) {
         SpringApplication.run(WitnessApplication.class, args);
-        /*try {
-            startChatRoomServer();
-        } catch (CertificateException | SSLException e) {
-            e.printStackTrace();
-        }*/
+        /*
+         * try {
+         * startChatRoomServer();
+         * } catch (CertificateException | SSLException e) {
+         * e.printStackTrace();
+         * }
+         */
     }
 
     private static void startChatRoomServer() throws CertificateException, SSLException {
@@ -50,9 +51,7 @@ public class WitnessApplication
         future.channel().closeFuture().syncUninterruptibly();
     }
 
-
-
-    // @Bean
+    @Bean
     public Connector httpConnector() {
         Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
         connector.setScheme("http");
