@@ -1,12 +1,15 @@
-package com.caiyuna.witness;
+/**
+ * 
+ */
+package com.caiyuna.witness.Listener;
 
 import java.net.InetSocketAddress;
 import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLException;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.caiyuna.witness.scene.SceneServer;
 import com.caiyuna.witness.scene.SecureSceneServer;
@@ -16,16 +19,23 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
-@SpringBootApplication
-public class WitnessApplication {
+/**
+ * @author Ldl 
+ * @since 1.0.0
+ */
+public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static void main(String[] args) {
-        /*SpringApplication springApplycation = new SpringApplication(WitnessApplication.class);
-        springApplycation.addListeners(new StartupListener());
-        springApplycation.run(args);*/
 
-        SpringApplication.run(WitnessApplication.class, args);
-        try {
+    /**
+     * @Author Ldl
+     * @Date 2017年12月13日
+     * @since 1.0.0
+     * @param event
+     * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
+     */
+    @Override
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        /*try {
             startSecureChatRoomServer();
         } catch (CertificateException e) {
             e.printStackTrace();
@@ -33,13 +43,11 @@ public class WitnessApplication {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-
-        // startChatRoomServer();
-
+        }*/
+        startChatRoomServer();
     }
 
-    private static void startSecureChatRoomServer() throws Exception {
+    private void startSecureChatRoomServer() throws Exception {
         SelfSignedCertificate cert = new SelfSignedCertificate();
         SslContext context = SslContextBuilder.forServer(cert.certificate(), cert.privateKey()).build();;
         final SecureSceneServer endpoint = new SecureSceneServer(context);
@@ -60,7 +68,7 @@ public class WitnessApplication {
         future.channel().closeFuture().syncUninterruptibly();
     }
 
-    private static void startChatRoomServer() {
+    private void startChatRoomServer() {
         final SceneServer endpoint = new SceneServer();
         ChannelFuture future = endpoint.start(new InetSocketAddress(8012));
         Runtime.getRuntime().addShutdownHook(new Thread() {

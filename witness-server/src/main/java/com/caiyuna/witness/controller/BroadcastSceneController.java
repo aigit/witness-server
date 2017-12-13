@@ -23,7 +23,7 @@ public class BroadcastSceneController {
 
     @RequestMapping("broadcast")
     public String broadCastScene(@RequestBody Scene scene) {
-        LOGGER.info("scene to string", scene.toString());
+        LOGGER.info("scene to string：{},{}", scene.toString());
         return "已经通知了附近的伙伴^_^";
     }
 

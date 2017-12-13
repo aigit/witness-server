@@ -3,6 +3,12 @@
  */
 package com.caiyuna.witness.scene;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.alibaba.fastjson.JSON;
+import com.caiyuna.witness.pos.Scene;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
@@ -14,6 +20,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
  * @since 1.0.0
  */
 public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TextWebSocketFrameHandler.class);
 
     private final ChannelGroup group;
 
@@ -33,12 +41,11 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
      * @throws Exception
      * @see io.netty.channel.ChannelInboundHandlerAdapter#userEventTriggered(io.netty.channel.ChannelHandlerContext, java.lang.Object)
      */
-    @SuppressWarnings("deprecation")
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
+        if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             ctx.pipeline().remove(HttpRequestHandler.class);
-            group.writeAndFlush(new TextWebSocketFrame("Client " + ctx.channel() + "joined"));
+            // group.writeAndFlush(new TextWebSocketFrame("Client " + ctx.channel() + "joined"));
             group.add(ctx.channel());
         } else {
             super.userEventTriggered(ctx, evt);
@@ -56,9 +63,9 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
      */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
-        System.out.println("服务器收到消息内容:" + msg.text().toString());
+        LOGGER.info("服务器收到消息内容:{}", msg.text().toString());
         group.writeAndFlush(msg.retain());
-
+        broadcastMessage(msg.retain().toString());
 
     }
 
@@ -74,6 +81,10 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
+    }
+
+    private void broadcastMessage(String message) {
+        Scene scene = JSON.parseObject(message, Scene.class);
     }
 
 }
