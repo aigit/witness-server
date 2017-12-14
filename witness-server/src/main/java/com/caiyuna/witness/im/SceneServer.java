@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.caiyuna.witness.scene;
+package com.caiyuna.witness.im;
 
 import java.net.InetSocketAddress;
 

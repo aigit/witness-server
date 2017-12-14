@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.caiyuna.witness.scene;
+package com.caiyuna.witness.im;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;

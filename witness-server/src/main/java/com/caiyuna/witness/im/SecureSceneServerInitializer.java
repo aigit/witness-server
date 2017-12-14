@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.caiyuna.witness.scene;
+package com.caiyuna.witness.im;
 
 import javax.net.ssl.SSLEngine;
 
@@ -33,7 +33,7 @@ public class SecureSceneServerInitializer extends SceneServerInitializer {
      * @since 1.0.0
      * @param ch
      * @throws Exception
-     * @see com.caiyuna.witness.scene.SceneServerInitializer#initChannel(io.netty.channel.Channel)
+     * @see com.caiyuna.witness.im.SceneServerInitializer#initChannel(io.netty.channel.Channel)
      */
     @Override
     protected void initChannel(Channel ch) throws Exception {

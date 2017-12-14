@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.caiyuna.witness.scene;
+package com.caiyuna.witness.im;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -29,7 +29,7 @@ public class SecureSceneServer extends SceneServer {
      * @since 1.0.0
      * @param group
      * @return
-     * @see com.caiyuna.witness.scene.SceneServer#createInitializer(io.netty.channel.group.ChannelGroup)
+     * @see com.caiyuna.witness.im.SceneServer#createInitializer(io.netty.channel.group.ChannelGroup)
      */
     @Override
     protected ChannelInitializer<Channel> createInitializer(ChannelGroup group) {

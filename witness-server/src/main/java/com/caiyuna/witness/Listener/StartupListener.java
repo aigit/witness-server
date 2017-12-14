@@ -11,8 +11,8 @@ import javax.net.ssl.SSLException;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import com.caiyuna.witness.scene.SceneServer;
-import com.caiyuna.witness.scene.SecureSceneServer;
+import com.caiyuna.witness.im.SceneServer;
+import com.caiyuna.witness.im.SecureSceneServer;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.ssl.SslContext;
