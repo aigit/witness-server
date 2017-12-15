@@ -15,11 +15,18 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class NettyProperties {
 
-    @Value(value = "${netty.securescene.server.port:8012}")
+    @Value(value = "${netty.securescene.server.port}")
     private Integer secureSceneServerPort;
+
+    @Value(value = "${netty.securescene.server.host}")
+    private String secureSceneServerHost;
 
     public Integer getSecureSceneServerPort() {
         return secureSceneServerPort;
+    }
+
+    public String getSecureSceneServerHost() {
+        return secureSceneServerHost;
     }
 
 }

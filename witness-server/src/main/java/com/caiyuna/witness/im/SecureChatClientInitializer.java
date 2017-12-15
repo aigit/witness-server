@@ -6,8 +6,11 @@ package com.caiyuna.witness.im;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.codec.compression.FastLzFrameDecoder;
+import io.netty.handler.codec.FixedLengthFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.CharsetUtil;
 
 /**
  * @author Ldl 
@@ -17,11 +20,17 @@ public class SecureChatClientInitializer extends ChannelInitializer<SocketChanne
 
     private final SslContext sslCtx;
 
+    private final String peerHost;
+
+    private final int peerPort;
+
     /**
     * 构造函数
     */
-    public SecureChatClientInitializer(SslContext sslCtx) {
+    public SecureChatClientInitializer(SslContext sslCtx, String peerHost, int peerPort) {
         this.sslCtx = sslCtx;
+        this.peerHost = peerHost;
+        this.peerPort = peerPort;
     }
 
     /**
@@ -36,9 +45,13 @@ public class SecureChatClientInitializer extends ChannelInitializer<SocketChanne
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
-        // pipeline.addLast(sslCtx.newHandler(ch.alloc(), peerHost, peerPort));
+        pipeline.addLast(sslCtx.newHandler(ch.alloc(), peerHost, peerPort));
 
-        pipeline.addLast(new FastLzFrameDecoder());
+        pipeline.addLast(new FixedLengthFrameDecoder(10240));
+        pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
+        pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
+
+        pipeline.addLast(new SecureChatClientHandler());
 
     }
 

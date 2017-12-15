@@ -6,6 +6,7 @@ package com.caiyuna.witness.im;
 import javax.net.ssl.SSLEngine;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
@@ -17,6 +18,7 @@ import io.netty.handler.ssl.SslHandler;
 public class SecureSceneServerInitializer extends SceneServerInitializer {
 
     private final SslContext context;
+    private final ChannelGroup group;
 
     /**
      * 构造函数
@@ -24,8 +26,10 @@ public class SecureSceneServerInitializer extends SceneServerInitializer {
      */
     public SecureSceneServerInitializer(ChannelGroup group, SslContext context) {
         super(group);
+        this.group = group;
         this.context = context;
     }
+
 
     /**
      * @Author Ldl
@@ -39,8 +43,10 @@ public class SecureSceneServerInitializer extends SceneServerInitializer {
     protected void initChannel(Channel ch) throws Exception {
         super.initChannel(ch);
         SSLEngine engine = context.newEngine(ch.alloc());
-        engine.setUseClientMode(false);
-        ch.pipeline().addFirst(new SslHandler(engine));
+        engine.setUseClientMode(true);
+        ChannelPipeline pipeline = ch.pipeline();
+        pipeline.addFirst(new SslHandler(engine));
+
     }
 
 }
