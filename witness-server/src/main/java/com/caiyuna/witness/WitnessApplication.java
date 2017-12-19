@@ -5,6 +5,8 @@ import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -18,6 +20,8 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 
 @SpringBootApplication
 public class WitnessApplication {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WitnessApplication.class);
 
     public static void main(String[] args) {
         /*SpringApplication springApplycation = new SpringApplication(WitnessApplication.class);
@@ -34,7 +38,7 @@ public class WitnessApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        LOGGER.info("呵呵呵");
         // startChatRoomServer();
 
     }
