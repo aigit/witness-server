@@ -43,7 +43,7 @@ public class SecureSceneServerInitializer extends SceneServerInitializer {
     protected void initChannel(Channel ch) throws Exception {
         super.initChannel(ch);
         SSLEngine engine = context.newEngine(ch.alloc());
-        engine.setUseClientMode(true);
+        engine.setUseClientMode(false);
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addFirst(new SslHandler(engine));
 
