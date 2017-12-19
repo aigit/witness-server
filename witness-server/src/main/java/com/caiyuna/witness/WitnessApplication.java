@@ -38,12 +38,13 @@ public class WitnessApplication {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LOGGER.info("呵呵呵");
+
         // startChatRoomServer();
 
     }
 
     private static void startSecureChatRoomServer() throws Exception {
+        LOGGER.info("呵呵呵");
         SelfSignedCertificate cert = new SelfSignedCertificate();
         SslContext context = SslContextBuilder.forServer(cert.certificate(), cert.privateKey()).build();;
         final SecureSceneServer endpoint = new SecureSceneServer(context);
