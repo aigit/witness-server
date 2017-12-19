@@ -29,7 +29,7 @@ public class WitnessApplication {
         springApplycation.run(args);*/
 
         SpringApplication.run(WitnessApplication.class, args);
-        try {
+        /*try {
             startSecureChatRoomServer();
         } catch (CertificateException e) {
             e.printStackTrace();
@@ -37,9 +37,9 @@ public class WitnessApplication {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
-        // startChatRoomServer();
+        startChatRoomServer();
 
     }
 
