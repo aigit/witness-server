@@ -11,9 +11,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.caiyuna.witness.im.SceneServer;
+import com.caiyuna.witness.im.SecureChatServerInitializer;
 import com.caiyuna.witness.im.SecureSceneServer;
 
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -27,10 +34,9 @@ public class WitnessApplication {
         /*SpringApplication springApplycation = new SpringApplication(WitnessApplication.class);
         springApplycation.addListeners(new StartupListener());
         springApplycation.run(args);*/
-
         SpringApplication.run(WitnessApplication.class, args);
-        /*try {
-            startSecureChatRoomServer();
+       /* try {
+            startSecureChatRoomServerInGroup();
         } catch (CertificateException e) {
             e.printStackTrace();
         } catch (SSLException e) {
@@ -44,7 +50,6 @@ public class WitnessApplication {
     }
 
     private static void startSecureChatRoomServer() throws Exception {
-        LOGGER.info("呵呵呵");
         SelfSignedCertificate cert = new SelfSignedCertificate();
         SslContext context = SslContextBuilder.forServer(cert.certificate(), cert.privateKey()).build();;
         final SecureSceneServer endpoint = new SecureSceneServer(context);
@@ -58,7 +63,7 @@ public class WitnessApplication {
              */
             @Override
             public void run() {
-                System.out.println("主动关闭连接");
+                LOGGER.info("主动关闭连接");
                 endpoint.destroy();
             }
         });
@@ -77,11 +82,30 @@ public class WitnessApplication {
              */
             @Override
             public void run() {
-                System.out.println("主动关闭连接");
+                LOGGER.info("主动关闭连接");
                 endpoint.destroy();
             }
         });
         future.channel().closeFuture().syncUninterruptibly();
+    }
+
+    private static void startSecureChatRoomServerInGroup() throws Exception {
+        SelfSignedCertificate ssc = new SelfSignedCertificate();
+        SslContext sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).handler(new LoggingHandler(LogLevel.INFO))
+                    .childHandler(new SecureChatServerInitializer(sslCtx));
+            b.bind(8012).sync().channel().closeFuture().sync();
+        } finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
+
+
     }
 
 }

@@ -3,13 +3,13 @@
  */
 package com.caiyuna.witness.im;
 
-import javax.net.ssl.SSLEngine;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.group.ChannelGroup;
+import io.netty.handler.codec.FixedLengthFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslHandler;
 
 /**
  * @author Ldl 
@@ -41,11 +41,13 @@ public class SecureSceneServerInitializer extends SceneServerInitializer {
      */
     @Override
     protected void initChannel(Channel ch) throws Exception {
-        super.initChannel(ch);
-        SSLEngine engine = context.newEngine(ch.alloc());
-        engine.setUseClientMode(false);
         ChannelPipeline pipeline = ch.pipeline();
-        pipeline.addFirst(new SslHandler(engine));
+        pipeline.addLast(context.newHandler(ch.alloc()));
+
+        pipeline.addLast(new FixedLengthFrameDecoder(1 << 8));
+        pipeline.addLast(new StringDecoder());
+        pipeline.addLast(new StringEncoder());
+        pipeline.addLast(new SecureChatServerHandler());
 
     }
 

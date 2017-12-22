@@ -23,7 +23,7 @@ import io.netty.util.concurrent.ImmediateEventExecutor;
 public class SceneServer {
 
     private final ChannelGroup channelGroup = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
-    private final EventLoopGroup group = new NioEventLoopGroup();
+    private final EventLoopGroup group = new NioEventLoopGroup(3);
     private Channel channel;
 
 

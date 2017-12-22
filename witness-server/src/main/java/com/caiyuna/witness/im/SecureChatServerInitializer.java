@@ -16,21 +16,16 @@ import io.netty.util.CharsetUtil;
  * @author Ldl 
  * @since 1.0.0
  */
-public class SecureChatClientInitializer extends ChannelInitializer<SocketChannel> {
+public class SecureChatServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private final SslContext sslCtx;
 
-    private final String peerHost;
-
-    private final int peerPort;
 
     /**
     * 构造函数
     */
-    public SecureChatClientInitializer(SslContext sslCtx, String peerHost, int peerPort) {
+    public SecureChatServerInitializer(SslContext sslCtx) {
         this.sslCtx = sslCtx;
-        this.peerHost = peerHost;
-        this.peerPort = peerPort;
     }
 
     /**
@@ -45,13 +40,13 @@ public class SecureChatClientInitializer extends ChannelInitializer<SocketChanne
     protected void initChannel(SocketChannel ch) throws Exception {
         ChannelPipeline pipeline = ch.pipeline();
 
-        pipeline.addLast(sslCtx.newHandler(ch.alloc(), peerHost, peerPort));
+        pipeline.addLast(sslCtx.newHandler(ch.alloc()));
 
-        pipeline.addLast(new FixedLengthFrameDecoder(10240));
+        pipeline.addLast(new FixedLengthFrameDecoder(512));
         pipeline.addLast(new StringDecoder(CharsetUtil.UTF_8));
         pipeline.addLast(new StringEncoder(CharsetUtil.UTF_8));
 
-        pipeline.addLast(new SecureChatClientHandler());
+        pipeline.addLast(new SecureChatServerHandler());
 
     }
 

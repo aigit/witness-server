@@ -56,8 +56,7 @@ public class WebSocketClientBuilder {
         EventLoopGroup group = new NioEventLoopGroup();
 
         Bootstrap b = new Bootstrap();
-        b.group(group).channel(NioSocketChannel.class).handler(new SecureChatClientInitializer(sslCtx, nettyProperties.getSecureSceneServerHost(),
-                nettyProperties.getSecureSceneServerPort()));
+        b.group(group).channel(NioSocketChannel.class).handler(new SecureChatServerInitializer(sslCtx));
         Channel ch = b.connect(nettyProperties.getSecureSceneServerHost(), nettyProperties.getSecureSceneServerPort()).channel();
         return ch;
     }
