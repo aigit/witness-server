@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.caiyuna.witness.config.Constants;
 import com.caiyuna.witness.pos.Scene;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -14,6 +15,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.util.Attribute;
 
 /**
  * @author Ldl 
@@ -46,6 +48,9 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             ctx.pipeline().remove(HttpRequestHandler.class);
             // group.writeAndFlush(new TextWebSocketFrame("Client " + ctx.channel() + "joined"));
+            Attribute<String> attr = ctx.channel().attr(Constants.NETTY_CHANNEL_KEY);
+            String groupId = attr.get();
+            LOGGER.info("groupId:{}", groupId);
             group.add(ctx.channel());
         } else {
             super.userEventTriggered(ctx, evt);

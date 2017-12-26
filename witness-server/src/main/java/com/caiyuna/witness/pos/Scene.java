@@ -11,10 +11,11 @@ import java.util.List;
  */
 public class Scene {
 
+    private String id;
     private String publisher;// 发布人
     private String avatarUrl;// 头像
-    private String latitude;// 维度
-    private String longitude;// 经度
+    private Double latitude;// 维度
+    private Double longitude;// 经度
     private String locationAddress;// 所处地址
 
     private List<String> imagedesclist;// 图片描述地址
@@ -35,22 +36,6 @@ public class Scene {
         this.avatarUrl = avatarUrl;
     }
 
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
     public String getLocationAddress() {
         return locationAddress;
     }
@@ -67,9 +52,33 @@ public class Scene {
         this.imagedesclist = imagedesclist;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
     @Override
     public String toString() {
-        return "Scene [publisher=" + publisher + ", avatarUrl=" + avatarUrl + ", latitude=" + latitude + ", longitude=" + longitude
+        return "Scene [id=" + id + ", publisher=" + publisher + ", avatarUrl=" + avatarUrl + ", latitude=" + latitude + ", longitude=" + longitude
                 + ", locationAddress=" + locationAddress + ", imagedesclist=" + imagedesclist + "]";
     }
 

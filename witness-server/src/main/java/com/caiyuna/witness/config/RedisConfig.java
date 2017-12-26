@@ -27,6 +27,7 @@ public class RedisConfig {
     private String host;
     private int port;
     private int timeout;
+    private String password;
 
     @Bean
     public JedisPoolConfig getRedisConfig() {
@@ -41,7 +42,7 @@ public class RedisConfig {
         config.setMaxIdle(8);
         config.setMinIdle(1);
 
-        JedisPool pool = new JedisPool(config, host, port);
+        JedisPool pool = new JedisPool(config, host, port, timeout, password);
         logger.info("初始化redis pool");
         return pool;
 
@@ -69,6 +70,14 @@ public class RedisConfig {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
 }

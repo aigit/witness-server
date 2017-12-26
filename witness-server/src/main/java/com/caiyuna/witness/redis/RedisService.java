@@ -6,7 +6,8 @@ package com.caiyuna.witness.redis;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import redis.clients.jedis.JedisPool;
 @Service
 public class RedisService {
 
-    private static final Logger LOGGER = Logger.getLogger(RedisService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisService.class);
 
     @Autowired
     private JedisPool jedisPool;
@@ -131,6 +132,20 @@ public class RedisService {
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("Redis set error: " + e.getMessage() + " - " + key + ", field:" + field);
+            return null;
+        } finally {
+            returnResource(jedis);
+        }
+    }
+
+    public Long geoAdd(String key, double longitude, double latitude, String member) {
+        Jedis jedis = null;
+        try {
+            jedis = getResource();
+            return jedis.geoadd(key, longitude, latitude, member);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("geoAdd error,key:{},longitude:{},latitude:{},member:{},e:{} ", key, longitude, latitude, member);
             return null;
         } finally {
             returnResource(jedis);
