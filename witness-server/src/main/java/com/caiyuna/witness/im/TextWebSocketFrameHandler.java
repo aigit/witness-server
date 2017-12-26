@@ -13,9 +13,9 @@ import com.caiyuna.witness.pos.Scene;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import io.netty.util.Attribute;
 
 /**
  * @author Ldl 
@@ -34,6 +34,7 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
         this.group = group;
     }
 
+
     /**
      * @Author Ldl
      * @Date 2017年10月12日
@@ -47,10 +48,9 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             ctx.pipeline().remove(HttpRequestHandler.class);
+            HttpHeaders headers = ((WebSocketServerProtocolHandler.HandshakeComplete) evt).requestHeaders();
             // group.writeAndFlush(new TextWebSocketFrame("Client " + ctx.channel() + "joined"));
-            Attribute<String> attr = ctx.channel().attr(Constants.NETTY_CHANNEL_KEY);
-            String groupId = attr.get();
-            LOGGER.info("groupId:{}", groupId);
+            LOGGER.info("groupId:{}", headers.get(Constants.SCENE_LOCATION_KEY));
             group.add(ctx.channel());
         } else {
             super.userEventTriggered(ctx, evt);
