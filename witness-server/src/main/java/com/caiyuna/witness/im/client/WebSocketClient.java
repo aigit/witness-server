@@ -20,6 +20,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
@@ -43,7 +44,7 @@ public final class WebSocketClient {
     static final String URL = System.getProperty("url", "ws://127.0.0.1:8080/websocket");
 
 
-    public void sendMessage(String message) throws Exception {
+    public void sendMessage(String message, Integer groupId) throws Exception {
         URI uri = new URI(wsUrl);
         String scheme = uri.getScheme() == null? "ws" : uri.getScheme();
         final String host = uri.getHost() == null? "127.0.0.1" : uri.getHost();
@@ -79,11 +80,12 @@ public final class WebSocketClient {
             // Connect with V13 (RFC 6455 aka HyBi-17). You can change it to V08 or V00.
             // If you change it to V00, ping is not supported and remember to change
             // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
+            HttpHeaders headers = new DefaultHttpHeaders();
+            headers.set(Constants.SCENE_LOCATION_KEY, groupId);
             final WebSocketClientHandler handler =
                     new WebSocketClientHandler(
                             WebSocketClientHandshakerFactory.newHandshaker(
-                                    uri, WebSocketVersion.V13, null, true, new DefaultHttpHeaders()));
-
+                                    uri, WebSocketVersion.V13, null, true, headers));
             Bootstrap b = new Bootstrap();
             b.group(group)
              .channel(NioSocketChannel.class)
@@ -103,7 +105,6 @@ public final class WebSocketClient {
              });
 
             Channel ch = b.connect(uri.getHost(), port).sync().channel();
-            ch.attr(Constants.NETTY_CHANNEL_KEY).setIfAbsent("bj01");
             handler.handshakeFuture().sync();
 
             WebSocketFrame frame = new TextWebSocketFrame(message);

@@ -25,13 +25,12 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextWebSocketFrameHandler.class);
 
-    private final ChannelGroup group;
+    private ChannelGroup group;
 
     /**
      * 构造函数
      */
-    public TextWebSocketFrameHandler(ChannelGroup group) {
-        this.group = group;
+    public TextWebSocketFrameHandler() {
     }
 
 
@@ -51,6 +50,8 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
             HttpHeaders headers = ((WebSocketServerProtocolHandler.HandshakeComplete) evt).requestHeaders();
             // group.writeAndFlush(new TextWebSocketFrame("Client " + ctx.channel() + "joined"));
             LOGGER.info("groupId:{}", headers.get(Constants.SCENE_LOCATION_KEY));
+            Integer groupId = Integer.valueOf(headers.get(Constants.SCENE_LOCATION_KEY));
+            group = ChannelGroupFactory.getGroupMap().get(groupId);
             group.add(ctx.channel());
         } else {
             super.userEventTriggered(ctx, evt);
