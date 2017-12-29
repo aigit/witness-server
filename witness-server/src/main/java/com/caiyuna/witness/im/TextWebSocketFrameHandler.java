@@ -5,15 +5,16 @@ package com.caiyuna.witness.im;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import com.alibaba.fastjson.JSON;
 import com.caiyuna.witness.config.Constants;
-import com.caiyuna.witness.pos.Scene;
+import com.caiyuna.witness.redis.RedisService;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 
@@ -21,16 +22,22 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
  * @author Ldl 
  * @since 1.0.0
  */
+@Component
+@Scope("prototype")
 public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
+
+    @Autowired
+    private RedisService redisService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextWebSocketFrameHandler.class);
 
-    private ChannelGroup group;
+    private static ChannelGroup group;
 
     /**
      * 构造函数
      */
     public TextWebSocketFrameHandler() {
+
     }
 
 
@@ -46,11 +53,19 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
-            ctx.pipeline().remove(HttpRequestHandler.class);
-            HttpHeaders headers = ((WebSocketServerProtocolHandler.HandshakeComplete) evt).requestHeaders();
             // group.writeAndFlush(new TextWebSocketFrame("Client " + ctx.channel() + "joined"));
-            LOGGER.info("groupId:{}", headers.get(Constants.SCENE_LOCATION_KEY));
-            Integer groupId = Integer.valueOf(headers.get(Constants.SCENE_LOCATION_KEY));
+            ctx.pipeline().remove(HttpRequestHandler.class);
+            String url = ((WebSocketServerProtocolHandler.HandshakeComplete) evt).requestUri();
+            LOGGER.info("URL param:{}", url);
+            String sceneId = url.split("[?]")[1].split("=")[0];
+            String location = url.split("[?]")[1].split("=")[1];
+            Double longitude = Double.parseDouble(url.split("[?]")[1].split("=")[1].split(",")[0]);
+            Double latitude = Double.parseDouble(url.split("[?]")[1].split("=")[1].split(",")[1]);
+            redisService.geoAdd(Constants.SCENE_LOCATION_KEY, longitude, latitude, sceneId);
+            // Integer groupId = Integer.valueOf(paramVal);
+
+            // LOGGER.info("groupId:{}", paramVal);
+
             group = ChannelGroupFactory.getGroupMap().get(groupId);
             group.add(ctx.channel());
         } else {
@@ -70,9 +85,8 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         LOGGER.info("服务器收到消息内容:{}", msg.text().toString());
-        group.writeAndFlush(msg.retain());
-        broadcastMessage(msg.retain().toString());
-
+        broadcastMessage(msg);
+        group.remove(ctx.channel());
     }
 
 
@@ -90,8 +104,9 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
         cause.printStackTrace();
     }
 
-    private void broadcastMessage(String message) {
-        Scene scene = JSON.parseObject(message, Scene.class);
+    private void broadcastMessage(TextWebSocketFrame msg) {
+        group.writeAndFlush(msg.retain());
+        // Scene scene = JSON.parseObject(msg.text(), Scene.class);
     }
 
 }

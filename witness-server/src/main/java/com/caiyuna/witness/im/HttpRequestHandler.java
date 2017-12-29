@@ -64,7 +64,11 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
      */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
-        if (wsUri.equalsIgnoreCase(request.uri())) {
+        String realUri = request.uri();
+        if (request.uri().contains("?")) {
+            realUri = request.uri().split("[?]")[0];
+        }
+        if (wsUri.equalsIgnoreCase(realUri)) {
             ctx.fireChannelRead(request.retain());
         } else {
             if (HttpUtil.is100ContinueExpected(request)) {

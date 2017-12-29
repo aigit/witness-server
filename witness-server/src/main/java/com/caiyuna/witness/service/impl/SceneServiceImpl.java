@@ -48,7 +48,7 @@ public class SceneServiceImpl implements ISceneService {
         // redisService.geoAdd(Constants.SCENE_LOCATION_KEY, scene.getLongitude(),
         // scene.getLatitude(), scene.getId());
         String sceneMessage = JSON.toJSONString(scene);
-        wsClient.sendMessage(sceneMessage, Integer.parseInt(scene.getId()));
+        wsClient.sendMessage(sceneMessage, scene);
         // new WebSocketBroadEcho().send(sceneMessage, wsUrl);
 
     }

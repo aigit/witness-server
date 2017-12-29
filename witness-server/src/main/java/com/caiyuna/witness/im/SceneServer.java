@@ -30,15 +30,15 @@ public class SceneServer {
 
     public ChannelFuture start(InetSocketAddress address) {
         ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(group).channel(NioServerSocketChannel.class).childHandler(createInitializer(channelGroup));
+        bootstrap.group(group).channel(NioServerSocketChannel.class).childHandler(createInitializer(null));
         ChannelFuture future = bootstrap.bind(address);
         future.syncUninterruptibly();
         channel = future.channel();
         return future;
     }
 
-    protected ChannelInitializer<Channel> createInitializer(ChannelGroup group) {
-        return new SceneServerInitializer(group);
+    protected ChannelInitializer<Channel> createInitializer(ChannelGroup channelGroup) {
+        return new SceneServerInitializer(channelGroup);
     }
 
     public void destroy() {

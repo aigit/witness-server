@@ -26,6 +26,10 @@ public class RedisService {
     @Autowired
     private JedisPool jedisPool;
 
+    static {
+
+    }
+
     /**
      * @Author Ldl
      * @Date 2017年12月4日
@@ -143,6 +147,20 @@ public class RedisService {
         try {
             jedis = getResource();
             return jedis.geoadd(key, longitude, latitude, member);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("geoAdd error,key:{},longitude:{},latitude:{},member:{},e:{} ", key, longitude, latitude, member);
+            return null;
+        } finally {
+            returnResource(jedis);
+        }
+    }
+
+    public void getNearCenterCity(String sceneId, double longitude, double latitude) {
+        Jedis jedis = null;
+        try {
+            jedis = getResource();
+            return jedis.geoadd(key, memberCoordinateMap).geoadd(key, longitude, latitude, member);
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("geoAdd error,key:{},longitude:{},latitude:{},member:{},e:{} ", key, longitude, latitude, member);

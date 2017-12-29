@@ -18,13 +18,11 @@ import io.netty.handler.stream.ChunkedWriteHandler;
  */
 public class SceneServerInitializer extends ChannelInitializer<Channel> {
 
-    private final ChannelGroup group;
 
     /**
      * 构造函数
      */
-    public SceneServerInitializer(ChannelGroup group) {
-        this.group = group;
+    public SceneServerInitializer(ChannelGroup channelGroup) {
     }
 
     /**
@@ -42,7 +40,7 @@ public class SceneServerInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast(new ChunkedWriteHandler());
         pipeline.addLast(new HttpObjectAggregator(64*1024));
         pipeline.addLast(new HttpRequestHandler("/ws"));
-        pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
+        pipeline.addLast(new WebSocketServerProtocolHandler("/ws", true));
         pipeline.addLast(new TextWebSocketFrameHandler());
 
     }
