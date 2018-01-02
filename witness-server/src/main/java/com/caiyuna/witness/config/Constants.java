@@ -16,10 +16,12 @@ public class Constants {
 
     public static final String SCENE_LOCATION_KEY = "scene.location";
 
+    public static final String SCENE_NEARCITY_LOCATION_KEY = "scene.location.nearcity:";
+
     public static final Map<String, GeoCoordinate> CENTER_CITY_COORDINATE_MAP = new HashMap<>();
 
     static {
-        CENTER_CITY_COORDINATE_MAP.put("1", value)
+        CENTER_CITY_COORDINATE_MAP.put("1", new GeoCoordinate(39.9385d, 116.1172d));
     }
 
 }

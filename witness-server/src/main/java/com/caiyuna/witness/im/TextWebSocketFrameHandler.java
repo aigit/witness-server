@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.caiyuna.witness.config.Constants;
 import com.caiyuna.witness.redis.RedisService;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -17,6 +16,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import redis.clients.jedis.GeoRadiusResponse;
 
 /**
  * @author Ldl 
@@ -61,12 +61,13 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
             String location = url.split("[?]")[1].split("=")[1];
             Double longitude = Double.parseDouble(url.split("[?]")[1].split("=")[1].split(",")[0]);
             Double latitude = Double.parseDouble(url.split("[?]")[1].split("=")[1].split(",")[1]);
-            redisService.geoAdd(Constants.SCENE_LOCATION_KEY, longitude, latitude, sceneId);
+            GeoRadiusResponse geoRadius = redisService.getNearCenterCity(sceneId, longitude, latitude);
+
             // Integer groupId = Integer.valueOf(paramVal);
 
-            // LOGGER.info("groupId:{}", paramVal);
+            LOGGER.info("geoRadius member:{},距离:{},坐标:{}", geoRadius.getMemberByString(), geoRadius.getDistance(), geoRadius.getCoordinate());
 
-            group = ChannelGroupFactory.getGroupMap().get(groupId);
+            group = ChannelGroupFactory.getGroupMap().get(geoRadius.getMemberByString());
             group.add(ctx.channel());
         } else {
             super.userEventTriggered(ctx, evt);

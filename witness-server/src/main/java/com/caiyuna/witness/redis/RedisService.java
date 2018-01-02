@@ -3,6 +3,7 @@
  */
 package com.caiyuna.witness.redis;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,8 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.caiyuna.witness.config.Constants;
+
+import redis.clients.jedis.GeoRadiusResponse;
+import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.params.geo.GeoRadiusParam;
 
 /**
  * @author Ldl 
@@ -37,7 +43,7 @@ public class RedisService {
      * @return
      * @see com.caiyuna.im.demo.redis.IRedisService#getResource()
      */
-    private Jedis getResource() {
+    public Jedis getResource() {
         return jedisPool.getResource();
     }
 
@@ -156,14 +162,19 @@ public class RedisService {
         }
     }
 
-    public void getNearCenterCity(String sceneId, double longitude, double latitude) {
+    public GeoRadiusResponse getNearCenterCity(String sceneId, double longitude, double latitude) {
         Jedis jedis = null;
         try {
             jedis = getResource();
-            return jedis.geoadd(key, memberCoordinateMap).geoadd(key, longitude, latitude, member);
+            String locationKey = Constants.SCENE_NEARCITY_LOCATION_KEY + sceneId;
+            jedis.geoadd(locationKey, Constants.CENTER_CITY_COORDINATE_MAP);
+            jedis.geoadd(locationKey, longitude, latitude, sceneId);
+            List<GeoRadiusResponse> geoRadius = jedis.georadiusByMember(locationKey, sceneId, 100d, GeoUnit.KM,
+                                                                        GeoRadiusParam.geoRadiusParam().sortAscending());
+            return geoRadius.get(0);
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error("geoAdd error,key:{},longitude:{},latitude:{},member:{},e:{} ", key, longitude, latitude, member);
+            LOGGER.error("geoAdd error,sceneId:{},longitude:{},latitude:{},e:{} ", sceneId, longitude, latitude, e);
             return null;
         } finally {
             returnResource(jedis);
