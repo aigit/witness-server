@@ -5,7 +5,6 @@ package com.caiyuna.witness.im.client;
 
 import java.net.URI;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.caiyuna.witness.pos.Scene;
@@ -37,16 +36,13 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 @Component
 public final class WebSocketClient {
 
-    @Value("${netty.websocekt.scene.wsurl}")
-    private String wsUrl;
-
     static final String URL = System.getProperty("url", "ws://127.0.0.1:8080/websocket");
 
 
-    public void sendMessage(String message, Scene scene) throws Exception {
+    public void sendMessage(String message, Scene scene, String wsUrl) throws Exception {
         double latitude = scene.getLatitude();
         double longitude = scene.getLongitude();
-        String location = latitude + "," + longitude;
+        String location = longitude + "," + latitude;
         wsUrl = wsUrl + "?" + scene.getId() + "=" + location;
         URI uri = new URI(wsUrl);
         String scheme = uri.getScheme() == null? "ws" : uri.getScheme();

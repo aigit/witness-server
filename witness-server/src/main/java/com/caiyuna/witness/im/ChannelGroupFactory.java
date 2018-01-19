@@ -24,7 +24,7 @@ public class ChannelGroupFactory {
 
     static void init(){
         groupMap.put(1, new DefaultChannelGroup("beijing", new GroupEventExecutor(), false));
-        groupMap.put(2, new DefaultChannelGroup("hebei", new GroupEventExecutor(), false));
+        groupMap.put(2, new DefaultChannelGroup("tianjin", new GroupEventExecutor(), false));
     }
 
     public static Map<Integer, ChannelGroup> getGroupMap() {

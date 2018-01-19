@@ -32,10 +32,6 @@ public class RedisService {
     @Autowired
     private JedisPool jedisPool;
 
-    static {
-
-    }
-
     /**
      * @Author Ldl
      * @Date 2017年12月4日
@@ -56,6 +52,7 @@ public class RedisService {
      */
     public void returnResource(Jedis jedis) {
         if (jedis != null) {
+            jedis.close();
             // jedisPool.close();
         }
 
@@ -164,19 +161,29 @@ public class RedisService {
 
     public GeoRadiusResponse getNearCenterCity(String sceneId, double longitude, double latitude) {
         Jedis jedis = null;
+        String locationKey = Constants.SCENE_NEARCITY_LOCATION_KEY + sceneId;
         try {
             jedis = getResource();
-            String locationKey = Constants.SCENE_NEARCITY_LOCATION_KEY + sceneId;
             jedis.geoadd(locationKey, Constants.CENTER_CITY_COORDINATE_MAP);
             jedis.geoadd(locationKey, longitude, latitude, sceneId);
-            List<GeoRadiusResponse> geoRadius = jedis.georadiusByMember(locationKey, sceneId, 100d, GeoUnit.KM,
-                                                                        GeoRadiusParam.geoRadiusParam().sortAscending());
-            return geoRadius.get(0);
+            List<GeoRadiusResponse> geoRadius = jedis.georadiusByMember(locationKey, sceneId, 150d, GeoUnit.KM,
+                                                                        GeoRadiusParam.geoRadiusParam().sortAscending().withDist().withCoord());
+            if(geoRadius==null || geoRadius.size()<2){
+                return null;
+            }
+            for (GeoRadiusResponse geoRadiusResponse : geoRadius) {
+                if(geoRadiusResponse.getMemberByString().equals(sceneId)){
+                    continue;
+                }
+                return geoRadiusResponse;
+            }
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("geoAdd error,sceneId:{},longitude:{},latitude:{},e:{} ", sceneId, longitude, latitude, e);
             return null;
         } finally {
+            jedis.del(locationKey);
             returnResource(jedis);
         }
     }

@@ -5,11 +5,10 @@ package com.caiyuna.witness.im;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Import;
 
 import com.caiyuna.witness.redis.RedisService;
+import com.caiyuna.witness.util.SpringUtil;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -22,16 +21,16 @@ import redis.clients.jedis.GeoRadiusResponse;
  * @author Ldl 
  * @since 1.0.0
  */
-@Component
-@Scope("prototype")
+// @Service
+// @Scope("prototype")
+@Import(value = { SpringUtil.class })
 public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
-    @Autowired
-    private RedisService redisService;
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TextWebSocketFrameHandler.class);
 
-    private static ChannelGroup group;
+    private ChannelGroup group;
 
     /**
      * 构造函数
@@ -59,15 +58,15 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
             LOGGER.info("URL param:{}", url);
             String sceneId = url.split("[?]")[1].split("=")[0];
             String location = url.split("[?]")[1].split("=")[1];
-            Double longitude = Double.parseDouble(url.split("[?]")[1].split("=")[1].split(",")[0]);
-            Double latitude = Double.parseDouble(url.split("[?]")[1].split("=")[1].split(",")[1]);
+            Double longitude = Double.parseDouble(location.split(",")[0]);
+            Double latitude = Double.parseDouble(location.split(",")[1]);
+            RedisService redisService = SpringUtil.getApplicationContext().getBean(RedisService.class);
             GeoRadiusResponse geoRadius = redisService.getNearCenterCity(sceneId, longitude, latitude);
-
-            // Integer groupId = Integer.valueOf(paramVal);
-
+            if (geoRadius == null) {
+                return;
+            }
             LOGGER.info("geoRadius member:{},距离:{},坐标:{}", geoRadius.getMemberByString(), geoRadius.getDistance(), geoRadius.getCoordinate());
-
-            group = ChannelGroupFactory.getGroupMap().get(geoRadius.getMemberByString());
+            group = ChannelGroupFactory.getGroupMap().get(Integer.parseInt(geoRadius.getMemberByString()));
             group.add(ctx.channel());
         } else {
             super.userEventTriggered(ctx, evt);
@@ -87,7 +86,8 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         LOGGER.info("服务器收到消息内容:{}", msg.text().toString());
         broadcastMessage(msg);
-        group.remove(ctx.channel());
+        ctx.close();
+        // group.remove(ctx.channel());
     }
 
 

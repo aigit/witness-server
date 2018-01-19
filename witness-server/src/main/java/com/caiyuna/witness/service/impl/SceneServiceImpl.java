@@ -38,7 +38,7 @@ public class SceneServiceImpl implements ISceneService {
      * @see com.caiyuna.witness.service.ISceneService#pushSceneDetails(java.lang.String)
      */
     @Override
-    public void pushSceneDetails(Scene scene) throws Exception {
+    public void pushSceneDetails(Scene scene, String wsUrl) throws Exception {
         // TODO 存入mongo
 
 
@@ -47,8 +47,9 @@ public class SceneServiceImpl implements ISceneService {
          */
         // redisService.geoAdd(Constants.SCENE_LOCATION_KEY, scene.getLongitude(),
         // scene.getLatitude(), scene.getId());
+
         String sceneMessage = JSON.toJSONString(scene);
-        wsClient.sendMessage(sceneMessage, scene);
+        wsClient.sendMessage(sceneMessage, scene, wsUrl);
         // new WebSocketBroadEcho().send(sceneMessage, wsUrl);
 
     }
