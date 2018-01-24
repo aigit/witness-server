@@ -6,15 +6,13 @@ package com.caiyuna.witness.entity;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.Entity;
-
 import org.springframework.data.annotation.Id;
 
 /**
  * @author Ldl 
  * @since 1.0.0
  */
-@Entity
+// @Entity
 public class Scene implements Serializable {
 
     /**
