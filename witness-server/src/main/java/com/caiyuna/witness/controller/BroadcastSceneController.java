@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.caiyuna.witness.pos.Scene;
+import com.caiyuna.witness.entity.Scene;
 import com.caiyuna.witness.service.ISceneService;
 
 /**

@@ -53,7 +53,6 @@ public class RedisService {
     public void returnResource(Jedis jedis) {
         if (jedis != null) {
             jedis.close();
-            // jedisPool.close();
         }
 
     }
@@ -120,7 +119,31 @@ public class RedisService {
      * @see com.caiyuna.im.demo.redis.IRedisService#get(java.lang.String)
      */
     public String get(String key) {
-        return null;
+        Jedis jedis = null;
+        try {
+            jedis = getResource();
+            return jedis.get(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Redis set error: " + e.getMessage() + " - " + key);
+            return null;
+        } finally {
+            returnResource(jedis);
+        }
+    }
+
+    public String set(String key, String val) {
+        Jedis jedis = null;
+        try {
+            jedis = getResource();
+            return jedis.set(key, val);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Redis set error: " + e.getMessage() + " - " + key);
+            return null;
+        } finally {
+            returnResource(jedis);
+        }
     }
 
     /**

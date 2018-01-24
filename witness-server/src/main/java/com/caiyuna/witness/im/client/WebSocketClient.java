@@ -7,7 +7,7 @@ import java.net.URI;
 
 import org.springframework.stereotype.Component;
 
-import com.caiyuna.witness.pos.Scene;
+import com.caiyuna.witness.entity.Scene;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;

@@ -4,13 +4,11 @@
 package com.caiyuna.witness.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.caiyuna.witness.entity.Scene;
 import com.caiyuna.witness.im.client.WebSocketClient;
-import com.caiyuna.witness.pos.Scene;
-import com.caiyuna.witness.redis.RedisService;
 import com.caiyuna.witness.service.ISceneService;
 
 /**
@@ -19,12 +17,6 @@ import com.caiyuna.witness.service.ISceneService;
  */
 @Service
 public class SceneServiceImpl implements ISceneService {
-
-    @Value("${netty.websocekt.scene.wsurl}")
-    private String wsUrl;
-
-    @Autowired
-    private RedisService redisService;
 
     @Autowired
     private WebSocketClient wsClient;
@@ -51,6 +43,20 @@ public class SceneServiceImpl implements ISceneService {
         String sceneMessage = JSON.toJSONString(scene);
         wsClient.sendMessage(sceneMessage, scene, wsUrl);
         // new WebSocketBroadEcho().send(sceneMessage, wsUrl);
+
+    }
+
+    /**
+     * @Author Ldl
+     * @Date 2018年1月23日
+     * @since 1.0.0
+     * @param scene
+     * @throws Exception
+     * @see com.caiyuna.witness.service.ISceneService#saveSceneDetails(com.caiyuna.witness.entity.Scene)
+     */
+    @Override
+    public void saveSceneDetails(Scene scene) throws Exception {
+        // TODO Auto-generated method stub
 
     }
 

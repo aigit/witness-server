@@ -7,8 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Import;
 
+import com.alibaba.fastjson.JSON;
+import com.caiyuna.witness.config.Constants;
+import com.caiyuna.witness.entity.Scene;
 import com.caiyuna.witness.redis.RedisService;
+import com.caiyuna.witness.repository.SceneDao;
 import com.caiyuna.witness.util.SpringUtil;
+import com.caiyuna.witness.util.ThreadPoolUtil;
+import com.caiyuna.witness.vo.SceneView;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -107,7 +113,24 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
 
     private void broadcastMessage(TextWebSocketFrame msg) {
         group.writeAndFlush(msg.retain());
-        // Scene scene = JSON.parseObject(msg.text(), Scene.class);
+        /*
+         * 为发布者自己保存一份
+         */
+        final Scene scene = JSON.parseObject(msg.text(), Scene.class);
+        SceneView sv = new SceneView(scene.getId(), scene.getPublisher(), scene.getAvatarUrl(), scene.getLocationAddress(), scene.getImagedesclist());
+        RedisService redisService = SpringUtil.getApplicationContext().getBean(RedisService.class);
+        redisService.set(Constants.SCENE_SELF_SHOW_KEY + scene.getId(), JSON.toJSONString(sv));
+
+        final SceneDao sceneDao = SpringUtil.getApplicationContext().getBean(SceneDao.class);
+
+        ThreadPoolUtil.execute(new Runnable() {
+            @Override
+            public void run() {
+                sceneDao.save(scene);
+            }
+        });
+        
     }
+
 
 }
