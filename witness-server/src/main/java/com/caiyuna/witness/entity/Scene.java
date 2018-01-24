@@ -1,16 +1,28 @@
 /**
  * 
  */
-package com.caiyuna.witness.pos;
+package com.caiyuna.witness.entity;
 
+import java.io.Serializable;
 import java.util.List;
+
+import javax.persistence.Entity;
+
+import org.springframework.data.annotation.Id;
 
 /**
  * @author Ldl 
  * @since 1.0.0
  */
-public class Scene {
+@Entity
+public class Scene implements Serializable {
 
+    /**
+     * 字段或域定义：<code>serialVersionUID</code>
+     */
+    private static final long serialVersionUID = -7294011112497135793L;
+
+    @Id
     private String id;
     private String publisher;// 发布人
     private String avatarUrl;// 头像
