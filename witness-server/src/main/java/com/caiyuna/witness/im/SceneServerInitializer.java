@@ -39,8 +39,8 @@ public class SceneServerInitializer extends ChannelInitializer<Channel> {
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new ChunkedWriteHandler());
         pipeline.addLast(new HttpObjectAggregator(64*1024));
-        pipeline.addLast(new HttpRequestHandler("/ws"));
-        pipeline.addLast(new WebSocketServerProtocolHandler("/ws", true));
+        pipeline.addLast(new HttpRequestHandler("/wss"));
+        pipeline.addLast(new WebSocketServerProtocolHandler("/wss", true));
         pipeline.addLast(new TextWebSocketFrameHandler());
 
     }
