@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.JSON;
 import com.caiyuna.witness.entity.Scene;
 import com.caiyuna.witness.im.client.WebSocketClient;
+import com.caiyuna.witness.repository.SceneDao;
 import com.caiyuna.witness.service.ISceneService;
 
 /**
@@ -20,6 +21,8 @@ public class SceneServiceImpl implements ISceneService {
 
     @Autowired
     private WebSocketClient wsClient;
+    @Autowired
+    private SceneDao sceneDao;
 
     /**
      * @Author Ldl
@@ -56,8 +59,22 @@ public class SceneServiceImpl implements ISceneService {
      */
     @Override
     public void saveSceneDetails(Scene scene) throws Exception {
-        // TODO Auto-generated method stub
+        sceneDao.save(scene);
 
+    }
+
+    /**
+     * @Author Ldl
+     * @Date 2018年2月8日
+     * @since 1.0.0
+     * @param sceneId
+     * @return
+     * @throws Exception
+     * @see com.caiyuna.witness.service.ISceneService#findSceneById(java.lang.String)
+     */
+    @Override
+    public Scene findSceneById(String sceneId) throws Exception {
+        return sceneDao.findSceneById(sceneId);
     }
 
 }

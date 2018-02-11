@@ -15,5 +15,7 @@ public interface ISceneService {
 
     void saveSceneDetails(Scene scene) throws Exception;
 
+    Scene findSceneById(String sceneId) throws Exception;
+
 
 }

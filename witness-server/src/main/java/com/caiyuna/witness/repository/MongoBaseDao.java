@@ -28,4 +28,8 @@ public class MongoBaseDao {
         mongoTemplate.save(t, collectionName);
     }
 
+    protected <T> T findEntityById(Class<T> c, String id, String collectionName) {
+        return mongoTemplate.findById(id, c, collectionName);
+    }
+
 }

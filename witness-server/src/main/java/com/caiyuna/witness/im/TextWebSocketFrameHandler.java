@@ -11,7 +11,8 @@ import com.alibaba.fastjson.JSON;
 import com.caiyuna.witness.config.Constants;
 import com.caiyuna.witness.entity.Scene;
 import com.caiyuna.witness.redis.RedisService;
-import com.caiyuna.witness.repository.SceneDao;
+import com.caiyuna.witness.service.ISceneService;
+import com.caiyuna.witness.service.impl.SceneServiceImpl;
 import com.caiyuna.witness.util.SpringUtil;
 import com.caiyuna.witness.util.ThreadPoolUtil;
 import com.caiyuna.witness.vo.SceneView;
@@ -121,12 +122,17 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
         RedisService redisService = SpringUtil.getApplicationContext().getBean(RedisService.class);
         redisService.set(Constants.SCENE_SELF_SHOW_KEY + scene.getId(), JSON.toJSONString(sv));
 
-        final SceneDao sceneDao = SpringUtil.getApplicationContext().getBean(SceneDao.class);
+        final ISceneService sceneService = SpringUtil.getApplicationContext().getBean(SceneServiceImpl.class);
 
         ThreadPoolUtil.execute(new Runnable() {
             @Override
             public void run() {
-                sceneDao.save(scene);
+                try {
+                    sceneService.saveSceneDetails(scene);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    LOGGER.error("保存场景明细失败", e);
+                }
             }
         });
         

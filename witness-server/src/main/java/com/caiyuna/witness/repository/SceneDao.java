@@ -37,4 +37,8 @@ public class SceneDao extends MongoBaseDao {
         super.save(scene, COLLECTION_NAME);
     }
 
+    public Scene findSceneById(String id) {
+        return super.findEntityById(Scene.class, id, COLLECTION_NAME);
+    }
+
 }

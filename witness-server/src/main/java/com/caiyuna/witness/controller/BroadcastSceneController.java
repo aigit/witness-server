@@ -3,6 +3,8 @@
  */
 package com.caiyuna.witness.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,19 @@ public class BroadcastSceneController {
             return "系统异常";
         }
         return "已经通知了附近的伙伴^_^";
+    }
+
+    @RequestMapping("/picture/detail")
+    public List<String> getPictureDetail(String sceneId) {
+        LOGGER.info("getPictureDetail,sceneId：{}", sceneId);
+        try {
+            Scene scene = sceneService.findSceneById(sceneId);
+            return scene.getImagedesclist();
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("getPictureDetail exception", e);
+        }
+        return null;
     }
 
 }
