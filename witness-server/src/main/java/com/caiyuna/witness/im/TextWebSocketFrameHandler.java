@@ -75,6 +75,7 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
             LOGGER.info("geoRadius member:{},距离:{},坐标:{}", geoRadius.getMemberByString(), geoRadius.getDistance(), geoRadius.getCoordinate());
             group = ChannelGroupFactory.getGroupMap().get(Integer.parseInt(geoRadius.getMemberByString()));
             group.add(ctx.channel());
+            LOGGER.info("group info:{}", group);
         } else {
             super.userEventTriggered(ctx, evt);
         }
