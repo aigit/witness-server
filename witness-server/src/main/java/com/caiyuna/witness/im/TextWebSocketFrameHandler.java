@@ -112,8 +112,9 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
         cause.printStackTrace();
     }
 
-    private void broadcastMessage(TextWebSocketFrame msg) {
+    private void broadcastMessage(TextWebSocketFrame msg) throws Exception {
         group.writeAndFlush(msg.retain());
+        LOGGER.info("group info:{}", group);
         /*
          * 为发布者自己保存一份
          */
