@@ -4,12 +4,9 @@
 package com.caiyuna.witness.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Ldl 
@@ -30,8 +27,10 @@ public class Scene implements Serializable {
     private Double latitude;// 维度
     private Double longitude;// 经度
     private String locationAddress;// 所处地址
-    @JsonIgnore(value = true)
-    private Date createTime;
+    /*
+     * @JsonIgnore(value = true)
+     * private Date createTime;
+     */
 
     private List<String> imagedesclist;// 图片描述地址
 
@@ -91,18 +90,12 @@ public class Scene implements Serializable {
         this.longitude = longitude;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
 
     @Override
     public String toString() {
         return "Scene [id=" + id + ", publisher=" + publisher + ", avatarUrl=" + avatarUrl + ", latitude=" + latitude + ", longitude=" + longitude
-                + ", locationAddress=" + locationAddress + ", createTime=" + createTime + ", imagedesclist=" + imagedesclist + "]";
+                + ", locationAddress=" + locationAddress + ", imagedesclist=" + imagedesclist + "]";
     }
 
 }
