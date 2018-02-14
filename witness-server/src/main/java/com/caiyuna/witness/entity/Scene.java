@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * @author Ldl 
  * @since 1.0.0
@@ -28,6 +30,7 @@ public class Scene implements Serializable {
     private Double latitude;// 维度
     private Double longitude;// 经度
     private String locationAddress;// 所处地址
+    @JsonIgnore(value = true)
     private Date createTime;
 
     private List<String> imagedesclist;// 图片描述地址
