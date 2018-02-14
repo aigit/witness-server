@@ -113,6 +113,7 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
     }
 
     private void broadcastMessage(TextWebSocketFrame msg) throws Exception {
+        LOGGER.info("group info:{}", group);
         group.writeAndFlush(msg.retain());
         LOGGER.info("group info:{}", group);
         /*
