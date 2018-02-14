@@ -3,6 +3,8 @@
  */
 package com.caiyuna.witness.im;
 
+import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Import;
@@ -118,7 +120,8 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
          * 为发布者自己保存一份
          */
         final Scene scene = JSON.parseObject(msg.text(), Scene.class);
-        SceneView sv = new SceneView(scene.getId(), scene.getPublisher(), scene.getAvatarUrl(), scene.getLocationAddress(), scene.getImagedesclist());
+        SceneView sv = new SceneView(scene.getId(), scene.getPublisher(), scene.getAvatarUrl(), scene.getLocationAddress(), scene.getImagedesclist(),
+                new Date());
         RedisService redisService = SpringUtil.getApplicationContext().getBean(RedisService.class);
         redisService.set(Constants.SCENE_SELF_SHOW_KEY + scene.getId(), JSON.toJSONString(sv));
 

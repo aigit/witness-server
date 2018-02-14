@@ -3,6 +3,7 @@
  */
 package com.caiyuna.witness.vo;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,6 +18,7 @@ public class SceneView {
     private String locationAddress;// 所处地址
 
     private List<String> imagedesclist;// 图片描述地址
+    private Date crateTime;
 
     /**
      * 构造函数
@@ -26,13 +28,14 @@ public class SceneView {
      * @param locationAddress
      * @param imagedesclist
      */
-    public SceneView(String id, String publisher, String publisherAvatarUrl, String locationAddress, List<String> imagedesclist) {
+    public SceneView(String id, String publisher, String publisherAvatarUrl, String locationAddress, List<String> imagedesclist, Date createTime) {
         super();
         this.id = id;
         this.publisher = publisher;
         this.publisherAvatarUrl = publisherAvatarUrl;
         this.locationAddress = locationAddress;
         this.imagedesclist = imagedesclist;
+        this.crateTime = createTime;
     }
 
     public String getId() {
@@ -79,6 +82,14 @@ public class SceneView {
     public String toString() {
         return "SceneView [id=" + id + ", publisher=" + publisher + ", publisherAvatarUrl=" + publisherAvatarUrl + ", locationAddress="
                 + locationAddress + ", imagedesclist=" + imagedesclist + "]";
+    }
+
+    public Date getCrateTime() {
+        return crateTime;
+    }
+
+    public void setCrateTime(Date crateTime) {
+        this.crateTime = crateTime;
     }
 
 }

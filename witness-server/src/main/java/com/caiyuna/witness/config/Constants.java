@@ -23,6 +23,7 @@ public class Constants {
     static {
         CENTER_CITY_COORDINATE_MAP.put("1", new GeoCoordinate(116.1172d, 39.9385d));// 北京
         CENTER_CITY_COORDINATE_MAP.put("2", new GeoCoordinate(117.1891d, 39.1289d));// 天津
+        CENTER_CITY_COORDINATE_MAP.put("3", new GeoCoordinate(115.20491d, 36.06979d));// 天津
     }
 
     public static final String SCENE_SELF_SHOW_KEY = "scene:userself:";
