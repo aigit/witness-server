@@ -3,7 +3,6 @@
  */
 package com.caiyuna.witness.redis;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,10 +190,7 @@ public class RedisService {
         try {
             jedis = getResource();
              jedis.geoadd(tempDistKey, memberCoordinateMap);
-             String[] memberArr = new String[2];
-             for (String member : memberCoordinateMap.keySet()) {
-                 Arrays.fill(memberArr, member);
-            }
+            String[] memberArr = (String[]) memberCoordinateMap.keySet().toArray();
             LOGGER.info("memberArr：{},{}", memberArr[0], memberArr[1]);
             return jedis.geodist(tempDistKey, memberArr[0], memberArr[1]);
         } catch (Exception e) {
