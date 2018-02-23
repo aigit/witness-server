@@ -6,6 +6,8 @@ package com.caiyuna.witness.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,8 @@ import redis.clients.jedis.GeoCoordinate;
  */
 @Service
 public class SceneServiceImpl implements ISceneService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SceneServiceImpl.class);
 
     @Autowired
     private WebSocketClient wsClient;
@@ -54,6 +58,7 @@ public class SceneServiceImpl implements ISceneService {
         memberCoordinateMap.put("systemPoint", new GeoCoordinate(scene.getLongitude(), scene.getLatitude()));
         memberCoordinateMap.put("customPoint", new GeoCoordinate(scene.getCustomLocation().getLongitude(), scene.getCustomLocation().getLatitude()));
         Double dist = redisService.geoDistance(memberCoordinateMap);
+        LOGGER.info("实际位置 偏差:{}", dist);
         if (dist > 20d) {
             return "1";
         }
