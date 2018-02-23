@@ -187,6 +187,7 @@ public class RedisService {
     public Double geoDistance(Map<String, GeoCoordinate> memberCoordinateMap) {
         Jedis jedis = null;
         String tempDistKey = Constants.TEMP_DIST_CALCULATE + System.currentTimeMillis();
+        LOGGER.info("tempDistKey：{}", tempDistKey);
         try {
             jedis = getResource();
              jedis.geoadd(tempDistKey, memberCoordinateMap);
@@ -194,13 +195,14 @@ public class RedisService {
              for (String member : memberCoordinateMap.keySet()) {
                  Arrays.fill(memberArr, member);
             }
+            LOGGER.info("memberArr：{},{}", memberArr[0], memberArr[1]);
             return jedis.geodist(tempDistKey, memberArr[0], memberArr[1]);
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("geoDistance error,key:{},memberCoordinateMap:{},e:{} ", Constants.TEMP_DIST_CALCULATE, memberCoordinateMap, e);
             return null;
         } finally {
-            jedis.del(tempDistKey);
+            // jedis.del(tempDistKey);
             returnResource(jedis);
         }
     }
