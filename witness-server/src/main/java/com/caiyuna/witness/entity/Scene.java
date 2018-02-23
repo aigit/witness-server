@@ -27,6 +27,7 @@ public class Scene implements Serializable {
     private Double latitude;// 维度
     private Double longitude;// 经度
     private String locationAddress;// 所处地址
+    private CustomLocation customLocation;
     /*
      * @JsonIgnore(value = true)
      * private Date createTime;
@@ -90,12 +91,45 @@ public class Scene implements Serializable {
         this.longitude = longitude;
     }
 
+    public static class CustomLocation {
+        private Double latitude;// 维度
+        private Double longitude;// 经度
 
+        public Double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(Double latitude) {
+            this.latitude = latitude;
+        }
+
+        public Double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(Double longitude) {
+            this.longitude = longitude;
+        }
+
+        @Override
+        public String toString() {
+            return "CustomLocation [latitude=" + latitude + ", longitude=" + longitude + "]";
+        }
+
+    }
+
+    public CustomLocation getCustomLocation() {
+        return customLocation;
+    }
+
+    public void setCustomLocation(CustomLocation customLocation) {
+        this.customLocation = customLocation;
+    }
 
     @Override
     public String toString() {
         return "Scene [id=" + id + ", publisher=" + publisher + ", avatarUrl=" + avatarUrl + ", latitude=" + latitude + ", longitude=" + longitude
-                + ", locationAddress=" + locationAddress + ", imagedesclist=" + imagedesclist + "]";
+                + ", locationAddress=" + locationAddress + ", customLocation=" + customLocation + ", imagedesclist=" + imagedesclist + "]";
     }
 
 }
