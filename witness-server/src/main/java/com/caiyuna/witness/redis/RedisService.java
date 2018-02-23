@@ -198,7 +198,7 @@ public class RedisService {
             LOGGER.error("geoDistance error,key:{},memberCoordinateMap:{},e:{} ", Constants.TEMP_DIST_CALCULATE, memberCoordinateMap, e);
             return null;
         } finally {
-            // jedis.del(tempDistKey);
+            jedis.del(tempDistKey);
             returnResource(jedis);
         }
     }

@@ -45,6 +45,19 @@ public class BroadcastSceneController {
         }
     }
 
+    @RequestMapping("measureDist")
+    public String measureDist(@RequestBody Scene scene) {
+        LOGGER.info("scene to string：{}", scene.toString());
+        try {
+            String result = sceneService.measureDist(scene);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.info("测量距离异常:{},e:{}", scene, e);
+            return "99";
+        }
+    }
+
     @RequestMapping("/picture/detail")
     public List<String> getPictureDetail(String sceneId) {
         LOGGER.info("getPictureDetail,sceneId：{}", sceneId);

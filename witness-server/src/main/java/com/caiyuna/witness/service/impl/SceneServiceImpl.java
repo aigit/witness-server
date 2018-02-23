@@ -97,4 +97,26 @@ public class SceneServiceImpl implements ISceneService {
         return sceneDao.findSceneById(sceneId);
     }
 
+    /**
+     * @Author Ldl
+     * @Date 2018年2月23日
+     * @since 1.0.0
+     * @param scene
+     * @return
+     * @throws Exception
+     * @see com.caiyuna.witness.service.ISceneService#measureDist(com.caiyuna.witness.entity.Scene)
+     */
+    @Override
+    public String measureDist(Scene scene) throws Exception {
+        Map<String, GeoCoordinate> memberCoordinateMap = new HashMap<>();
+        memberCoordinateMap.put("systemPoint", new GeoCoordinate(scene.getLongitude(), scene.getLatitude()));
+        memberCoordinateMap.put("customPoint", new GeoCoordinate(scene.getCustomLocation().getLongitude(), scene.getCustomLocation().getLatitude()));
+        Double dist = redisService.geoDistance(memberCoordinateMap);
+        LOGGER.info("实际位置 偏差:{}", dist);
+        if (dist > 20d) {
+            return "1";
+        }
+        return "0";
+    }
+
 }

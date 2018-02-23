@@ -13,6 +13,8 @@ public interface ISceneService {
 
     String pushSceneDetails(Scene scene, String wsUrl) throws Exception;
 
+    String measureDist(Scene scene) throws Exception;
+
     void saveSceneDetails(Scene scene) throws Exception;
 
     Scene findSceneById(String sceneId) throws Exception;
