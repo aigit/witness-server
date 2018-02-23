@@ -190,9 +190,9 @@ public class RedisService {
         try {
             jedis = getResource();
              jedis.geoadd(tempDistKey, memberCoordinateMap);
-            String[] memberArr = (String[]) memberCoordinateMap.keySet().toArray();
+            Object[] memberArr = memberCoordinateMap.keySet().toArray();
             LOGGER.info("memberArr：{},{}", memberArr[0], memberArr[1]);
-            return jedis.geodist(tempDistKey, memberArr[0], memberArr[1]);
+            return jedis.geodist(tempDistKey, memberArr[0].toString(), memberArr[1].toString());
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error("geoDistance error,key:{},memberCoordinateMap:{},e:{} ", Constants.TEMP_DIST_CALCULATE, memberCoordinateMap, e);
