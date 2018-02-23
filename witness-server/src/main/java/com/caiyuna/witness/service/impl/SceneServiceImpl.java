@@ -3,14 +3,20 @@
  */
 package com.caiyuna.witness.service.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
 import com.caiyuna.witness.entity.Scene;
 import com.caiyuna.witness.im.client.WebSocketClient;
+import com.caiyuna.witness.redis.RedisService;
 import com.caiyuna.witness.repository.SceneDao;
 import com.caiyuna.witness.service.ISceneService;
+
+import redis.clients.jedis.GeoCoordinate;
 
 /**
  * @author Ldl 
@@ -23,6 +29,8 @@ public class SceneServiceImpl implements ISceneService {
     private WebSocketClient wsClient;
     @Autowired
     private SceneDao sceneDao;
+    @Autowired
+    private RedisService redisService;
 
     /**
      * @Author Ldl
@@ -33,7 +41,7 @@ public class SceneServiceImpl implements ISceneService {
      * @see com.caiyuna.witness.service.ISceneService#pushSceneDetails(java.lang.String)
      */
     @Override
-    public void pushSceneDetails(Scene scene, String wsUrl) throws Exception {
+    public String pushSceneDetails(Scene scene, String wsUrl) throws Exception {
         // TODO 存入mongo
 
 
@@ -42,9 +50,16 @@ public class SceneServiceImpl implements ISceneService {
          */
         // redisService.geoAdd(Constants.SCENE_LOCATION_KEY, scene.getLongitude(),
         // scene.getLatitude(), scene.getId());
-
+        Map<String, GeoCoordinate> memberCoordinateMap = new HashMap<>();
+        memberCoordinateMap.put("systemPoint", new GeoCoordinate(scene.getLongitude(), scene.getLatitude()));
+        memberCoordinateMap.put("customPoint", new GeoCoordinate(scene.getCustomLocation().getLongitude(), scene.getCustomLocation().getLatitude()));
+        Double dist = redisService.geoDistance(memberCoordinateMap);
+        if (dist > 20d) {
+            return "1";
+        }
         String sceneMessage = JSON.toJSONString(scene);
         wsClient.sendMessage(sceneMessage, scene, wsUrl);
+        return "0";
         // new WebSocketBroadEcho().send(sceneMessage, wsUrl);
 
     }

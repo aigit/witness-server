@@ -28,4 +28,6 @@ public class Constants {
 
     public static final String SCENE_SELF_SHOW_KEY = "scene:userself:";
 
+    public static final String TEMP_DIST_CALCULATE = "temp:dist:calculate";
+
 }

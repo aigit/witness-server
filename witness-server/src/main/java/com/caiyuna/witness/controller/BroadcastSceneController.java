@@ -36,13 +36,13 @@ public class BroadcastSceneController {
     public String broadCastScene(@RequestBody Scene scene) {
         LOGGER.info("scene to string：{}", scene.toString());
         try {
-            sceneService.pushSceneDetails(scene, wsUrl);
+            String result = sceneService.pushSceneDetails(scene, wsUrl);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.info("发送现场异常:{}", scene);
-            return "系统异常";
+            return "99";
         }
-        return "已经通知了附近的伙伴^_^";
     }
 
     @RequestMapping("/picture/detail")

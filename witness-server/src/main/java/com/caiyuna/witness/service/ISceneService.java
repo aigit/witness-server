@@ -11,7 +11,7 @@ import com.caiyuna.witness.entity.Scene;
  */
 public interface ISceneService {
 
-    void pushSceneDetails(Scene scene, String wsUrl) throws Exception;
+    String pushSceneDetails(Scene scene, String wsUrl) throws Exception;
 
     void saveSceneDetails(Scene scene) throws Exception;
 

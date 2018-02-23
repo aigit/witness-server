@@ -3,6 +3,7 @@
  */
 package com.caiyuna.witness.redis;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.caiyuna.witness.config.Constants;
 
+import redis.clients.jedis.GeoCoordinate;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
@@ -178,6 +180,27 @@ public class RedisService {
             LOGGER.error("geoAdd error,key:{},longitude:{},latitude:{},member:{},e:{} ", key, longitude, latitude, member);
             return null;
         } finally {
+            returnResource(jedis);
+        }
+    }
+
+    public Double geoDistance(Map<String, GeoCoordinate> memberCoordinateMap) {
+        Jedis jedis = null;
+        String tempDistKey = Constants.TEMP_DIST_CALCULATE + System.currentTimeMillis();
+        try {
+            jedis = getResource();
+             jedis.geoadd(tempDistKey, memberCoordinateMap);
+             String[] memberArr = new String[2];
+             for (String member : memberCoordinateMap.keySet()) {
+                 Arrays.fill(memberArr, member);
+            }
+            return jedis.geodist(tempDistKey, memberArr[0], memberArr[1]);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("geoDistance error,key:{},memberCoordinateMap:{},e:{} ", Constants.TEMP_DIST_CALCULATE, memberCoordinateMap, e);
+            return null;
+        } finally {
+            jedis.del(tempDistKey);
             returnResource(jedis);
         }
     }
