@@ -113,7 +113,7 @@ public class SceneServiceImpl implements ISceneService {
         memberCoordinateMap.put("customPoint", new GeoCoordinate(scene.getCustomLocation().getLongitude(), scene.getCustomLocation().getLatitude()));
         Double dist = redisService.geoDistance(memberCoordinateMap);
         LOGGER.info("实际位置 偏差:{}", dist);
-        if (dist > 20d) {
+        if (dist > 100d) {
             return "1";
         }
         return "0";
