@@ -47,8 +47,6 @@ public class SceneServiceImpl implements ISceneService {
     @Override
     public String pushSceneDetails(Scene scene, String wsUrl) throws Exception {
         // TODO 存入mongo
-
-
         /*
          * 放入位置信息到缓存
          */
