@@ -4,15 +4,14 @@
 package com.caiyuna.witness.Listener;
 
 import java.net.InetSocketAddress;
-import java.security.cert.CertificateException;
 
-import javax.net.ssl.SSLException;
-
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.caiyuna.witness.im.SceneServer;
 import com.caiyuna.witness.im.SecureSceneServer;
+import com.caiyuna.witness.redis.RedisService;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.ssl.SslContext;
@@ -23,29 +22,8 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
  * @author Ldl 
  * @since 1.0.0
  */
-public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-
-    /**
-     * @Author Ldl
-     * @Date 2017年12月13日
-     * @since 1.0.0
-     * @param event
-     * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
-     */
-    @Override
-    public void onApplicationEvent(ContextRefreshedEvent event) {
-        /*try {
-            startSecureChatRoomServer();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (SSLException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-        startChatRoomServer();
-    }
+public class StartupListener implements ApplicationListener<ApplicationReadyEvent> {
 
     private void startSecureChatRoomServer() throws Exception {
         SelfSignedCertificate cert = new SelfSignedCertificate();
@@ -85,6 +63,14 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
             }
         });
         future.channel().closeFuture().syncUninterruptibly();
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent arg0) {
+        ApplicationContext cxt = arg0.getApplicationContext();
+        RedisService redisService = cxt.getBean(RedisService.class);
+        String mukv = redisService.get("fok");
+        System.out.println("mukv..." + mukv);
     }
 
 }
