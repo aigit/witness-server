@@ -10,6 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 
 import com.caiyuna.witness.config.Constants;
@@ -26,6 +27,7 @@ import redis.clients.jedis.params.geo.GeoRadiusParam;
  * @since 1.0.0
  */
 @Service
+@Configuration
 public class RedisService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedisService.class);

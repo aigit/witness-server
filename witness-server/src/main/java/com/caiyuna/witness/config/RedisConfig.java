@@ -28,6 +28,7 @@ public class RedisConfig {
     private int port;
     private int timeout;
     private String password;
+    private RedisConfig.Pool pool;
 
     @Bean
     public JedisPoolConfig getRedisConfig() {
@@ -38,9 +39,9 @@ public class RedisConfig {
     @Bean
     public JedisPool getJedisPool() {
         JedisPoolConfig config = getRedisConfig();
-        config.setMaxTotal(8);
-        config.setMaxIdle(8);
-        config.setMinIdle(1);
+        config.setMaxTotal(pool.getMaxActive());
+        config.setMaxIdle(pool.getMaxIdle());
+        config.setMinIdle(pool.getMinIdle());
 
         JedisPool pool = new JedisPool(config, host, port, timeout, password);
         logger.info("初始化redis pool");
@@ -78,6 +79,54 @@ public class RedisConfig {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public static class Pool {
+        private int maxIdle = 8;
+        private int minIdle = 0;
+        private int maxActive = 8;
+        private int maxWait = -1;
+
+        public int getMaxIdle() {
+            return maxIdle;
+        }
+
+        public void setMaxIdle(int maxIdle) {
+            this.maxIdle = maxIdle;
+        }
+
+        public int getMinIdle() {
+            return minIdle;
+        }
+
+        public void setMinIdle(int minIdle) {
+            this.minIdle = minIdle;
+        }
+
+        public int getMaxActive() {
+            return maxActive;
+        }
+
+        public void setMaxActive(int maxActive) {
+            this.maxActive = maxActive;
+        }
+
+        public int getMaxWait() {
+            return maxWait;
+        }
+
+        public void setMaxWait(int maxWait) {
+            this.maxWait = maxWait;
+        }
+
+    }
+
+    public RedisConfig.Pool getPool() {
+        return pool;
+    }
+
+    public void setPool(RedisConfig.Pool pool) {
+        this.pool = pool;
     }
 
 }

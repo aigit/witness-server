@@ -1,19 +1,5 @@
 package com.caiyuna.witness;
 
-import java.net.InetSocketAddress;
-import java.security.cert.CertificateException;
-
-import javax.net.ssl.SSLException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import com.caiyuna.witness.im.SceneServer;
-import com.caiyuna.witness.im.SecureChatServerInitializer;
-import com.caiyuna.witness.im.SecureSceneServer;
-
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -24,17 +10,40 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+import com.caiyuna.witness.im.SceneServer;
+import com.caiyuna.witness.im.SecureChatServerInitializer;
+import com.caiyuna.witness.im.SecureSceneServer;
+import com.caiyuna.witness.service.CacheKeyGenerator;
+import com.caiyuna.witness.service.impl.LockKeyGeneratorImpl;
+
+/**
+ * @author Ldl
+ */
+@EnableAsync
 @SpringBootApplication
 public class WitnessApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WitnessApplication.class);
 
+    /* @Autowired
+    private RedisService redisService;*/
+
     public static void main(String[] args) {
-        /*SpringApplication springApplycation = new SpringApplication(WitnessApplication.class);
-        springApplycation.addListeners(new StartupListener());
-        springApplycation.run(args);*/
-        SpringApplication.run(WitnessApplication.class, args);
+        SpringApplication.run(WitnessApplication.class, args).close();
+        // springApplycation.addListeners(new StartupListener());
+
+        // SpringApplication.run(WitnessApplication.class, args);
        /* try {
             startSecureChatRoomServerInGroup();
         } catch (CertificateException e) {
@@ -45,8 +54,13 @@ public class WitnessApplication {
             e.printStackTrace();
         }*/
 
-        startChatRoomServer();
+        // startChatRoomServer();
 
+    }
+
+    @Bean
+    public CacheKeyGenerator cacheKeyGenerator(){
+            return new LockKeyGeneratorImpl();
     }
 
     private static void startSecureChatRoomServer() throws Exception {
@@ -106,6 +120,17 @@ public class WitnessApplication {
         }
 
 
+    }
+
+    @Bean
+    public Executor asyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("githubLookUp-");
+        executor.initialize();
+        return executor;
     }
 
 }

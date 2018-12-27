@@ -3,25 +3,19 @@
  */
 package com.caiyuna.witness;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -32,7 +26,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.caiyuna.witness.redis.RedisService;
 
-import redis.clients.jedis.BitOP;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 
@@ -49,6 +42,7 @@ public class RedisServiceTest {
     private static final String LOCK_SUCCESS = "OK";
     private static final String SET_IF_NOT_EXIST = "NX";
     private static final String SET_WITH_EXPIRE_TIME = "PX";
+    private static final Long RELEASE_SUCCESS = 1L;
 
     private static CyclicBarrier cyclicBarrier;
     private static CountDownLatch countDownLatch = new CountDownLatch(5);
@@ -56,106 +50,14 @@ public class RedisServiceTest {
     private Lock counterLock = new ReentrantLock();
     private AtomicInteger countUser = new AtomicInteger(0);
 
-    static class CyclicBarrierThread extends Thread {
-        /**
-         * @Author Ldl
-         * @Date 2018年3月13日
-         * @since 1.0.0
-         * @see java.lang.Thread#run()
-         */
-        @Override
-        public void run() {
-            System.out.println(Thread.currentThread().getName() + "到了");
-            try {
-                cyclicBarrier.await();
-            } catch (Exception e) {
-                // TODO: handle exception
-            }
-        }
-    }
 
-    static class BossThread extends Thread {
-        /**
-         * @Author Ldl
-         * @Date 2018年3月13日
-         * @since 1.0.0
-         * @see java.lang.Thread#run()
-         */
-        @Override
-        public void run() {
-            System.out.println("Boss在会议室等待，总共有" + countDownLatch.getCount() + "个人开会...");
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.out.println("所有人都已经到齐了，开会吧...");
-        }
-    }
-
-    static class EmployeeThread extends Thread {
-        /**
-         * @Author Ldl
-         * @Date 2018年3月13日
-         * @since 1.0.0
-         * @see java.lang.Thread#run()
-         */
-        @Override
-        public void run() {
-            System.out.println(Thread.currentThread().getName() + ",到达会议室...");
-            countDownLatch.countDown();
-        }
-    }
-
-    volatile boolean shutDown;
-    private AtomicInteger at = new AtomicInteger(2);
 
     @Autowired
     private RedisService redisService;
 
-    @Test
-    public void testlist() {
-        final Jedis jedis = redisService.getResource();
-        jedis.select(0);
-        
-        for (int i = 0; i < 10; i++) {
-            jedis.lpush("mylist", "a" + i);
-        }
-        String rpop = jedis.rpop("mylist");
-        Assert.assertEquals("a0", rpop);
-        List<String> mylist = jedis.lrange("mylist", 0, -1);
-        for (String string : mylist) {
-            System.out.println(string);
-        }
-
-        jedis.ltrim("mylist", 0, 2);
-
-        List<String> myPagelist = jedis.lrange("mylist", 3, -2);
-        for (String string : myPagelist) {
-            System.out.println("截取元素:" + string);
-        }
-        
-         
-        for (int i = 0; i < 20; i++) {
-            jedis.lpush("listqueue", i + "c");
-        }
-
-        System.out.println("单个取出:" + jedis.rpop("listqueue"));
-
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        Future f1 = executor.submit(new ListConsumer(jedis, "消费者1"));
-        Future f2 = executor.submit(new ListConsumer(jedis, "消费者2"));
-        try {
-            f1.get();
-            f2.get();
-        } catch (InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        jedis.close();
-    }
-
+    /**
+     * 发红包
+     */
     @Test
     public void pushAward() {
         Jedis jedis = redisService.getResource();
@@ -169,149 +71,10 @@ public class RedisServiceTest {
 
     }
 
-    @Test
-    public void testVolatile() {
-        shutDown = true;
-    }
-
-    @Test
-    public void dowork() {
-
-    }
-
-
-    @Test
-    public void testSet() {
-        Jedis jedis = redisService.getResource();
-        try {
-            jedis.del("patient1", "patient2");
-
-            Random random = new Random();
-            for (int i = 0; i < 10; i++) {
-                jedis.sadd("patient1", String.valueOf(random.nextInt(50)));
-            }
-            for (int i = 0; i < 10; i++) {
-                jedis.sadd("patient2", String.valueOf(random.nextInt(50)));
-            }
-            Set<String> pa1set = jedis.smembers("patient1");
-            Set<String> pa2set = jedis.smembers("patient2");
-            for (String doc1 : pa1set) {
-                System.out.print(doc1 + ",");
-            }
-            System.out.print("\n");
-            for (String doc2 : pa2set) {
-                System.out.print(doc2 + ",");
-            }
-            System.out.print("\n");
-            Set<String> commonset = jedis.sinter("patient1", "patient2");
-            for (String commondoc : commonset) {
-                System.out.print(commondoc + ",");
-            }
-            System.out.print("\n");
-            Set<String> andset = jedis.sunion("patient1", "patient2");
-            for (String ands : andset) {
-                System.out.print(ands + ",");
-            }
-            System.out.print("\n");
-            for (String doc1 : pa1set) {
-                System.out.print(doc1 + ",");
-                jedis.srem("patient1", doc1);
-            }
-            Assert.assertTrue(jedis.exists("patient1"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            jedis.close();
-        }
-
-    }
-
-    // 订阅key过期触发事件
-    @Test
-    public void testPubSub() {
-        Jedis jedis = redisService.getResource();
-        try {
-            jedis.select(1);
-            jedis.subscribe(new KeyExpiredListener(), "__keyevent@1__:expired");
-        } finally {
-            jedis.close();
-        }
-    }
-
-    @Test
-    public void testBitSet() throws IOException {
-        int[] initarr = new int[4000000];
-        for (int i = 0; i < 4000000; i++) {
-            initarr[i] = i;
-        }
-        initarr[13] = 0;
-        int temp = initarr[32];
-        initarr[32] = initarr[9];
-        initarr[9] = temp;
-        int[] counter = new int[10];
-        int piece = (int) (initarr.length / 10);
-        List<BitSet> bitarr = new ArrayList<>();
-        for (int j = 0; j < 10; j++) {
-            bitarr.add(new BitSet(piece));
-        }
-        for (Integer ints : initarr) {
-            if (ints == 0) {
-                bitarr.get(0).set(0, true);
-                continue;
-            }
-            int x = (int) (ints / piece);
-            int y = ints % piece;
-            counter[x]++;
-            bitarr.get(x).set(y, true);
-        }
-        int targetindex = 0;
-        for (int i = 0; i < counter.length; i++) {
-            if (counter[i] < piece) {
-                targetindex = i;
-                break;
-            }
-        }
-        BitSet bs = (BitSet) bitarr.get(targetindex);
-        Long targetnum = null;
-        for (int i = 0; i < piece; i++) {
-            if (!bs.get(i)) {
-                targetnum = (long) (piece * targetindex +i);
-                break;
-            }
-        }
-        System.out.println("不包含数字:" + targetnum);
-
-    }
-
-    @Test
-    public void testBitMap() {
-        Jedis jedis = redisService.getResource();
-        for (int i = 0; i < 100; i++) {
-            if ((i % 3 == 0) || (i % 7 == 0)) {
-                jedis.setbit("doct:signin:20180103", i, true);
-            }
-        }
-        System.out.println("公因数:" + jedis.bitcount("doct:signin:20180103"));
-        jedis.set("key1", "foobar");
-        jedis.set("key2", "abcdef");
-        jedis.bitop(BitOP.AND, "desck", "key1", "key2");
-        System.out.println("destk:" + jedis.get("desck"));
-        jedis.close();
-    }
-
-    private static boolean tryGetDistributedLock(Jedis jedis,String lockKey,String requestId,int expireTime){
-        String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
-        if (LOCK_SUCCESS.equals(result)) {
-            return true;
-        }
-        return false;
-    }
 
     /**
-     * 并发原子操作
+     * 并发原子操作--抢红包
      * @author Ldl
-     *
      */
     @Test
     public void testConcurrentOper() {
@@ -332,7 +95,7 @@ public class RedisServiceTest {
     }
 
     /**
-     * 原子操作
+     * 原子操作--抢红包
      * @author Ldl
      */
     private class ConcurrentThread implements Callable<Void>{
@@ -367,15 +130,18 @@ public class RedisServiceTest {
         final Jedis jedis = redisService.getResource();
         jedis.select(0);
         // 乐观锁控制
-        jedis.set("c1", "0");
-        jedis.set("c2", "10");
-        // jedis.set("c2", "a");
-        LOGGER.info("c1值:{}", jedis.get("c1"));
-        jedis.close();
+        // jedis.set("c1", "0");// 订单商品数
+        // jedis.set("c2", "10");// 库存数
+        // jedis.set("c2", "20");
+
+        String orderSn = "BJ:WJ-GM: 23:34:17";
+        jedis.set(orderSn, "0");// 未抢订单
+        // LOGGER.info("订单商品数 c1值:{}", jedis.get("c1"));
+
         ExecutorService exeservice = Executors.newCachedThreadPool();
         List<Callable<Void>> callers = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
-            callers.add(new TransThread(i + "-" + System.currentTimeMillis(), redisService, i * 100L));
+            callers.add(new TransThread(i, i + "-" + System.currentTimeMillis(), redisService, (i % 5) * 10L));
         }
         try {
             exeservice.invokeAll(callers);
@@ -383,27 +149,33 @@ public class RedisServiceTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LOGGER.info("c1 最后的值:{},c2 最后的值:{}", jedis.get("c1"), jedis.get("c2"));
+        // LOGGER.info("订单商品数量c1 最后的值:{},库存数量c2 最后的值:{}", jedis.get("c1"), jedis.get("c2"));
+        LOGGER.info("订单号{},成功抢单的司机 SUCCESS_DRIVER:{}", orderSn, jedis.get(orderSn + "_DRIVER"));
+        jedis.close();
     }
 
     public class TransThread implements Callable<Void> {
         private Jedis jediscli;
+        private final RedisService redisService;
         private String callName;
         private Long prepareTime;
+        private int callNo;
 
         /**
          * 构造函数
          */
-        public TransThread(String callName, RedisService redisService, Long prepareTime) {
+        public TransThread(int callNo, String callName, RedisService redisService, Long prepareTime) {
             jediscli = redisService.getResource();
             this.callName = callName;
             this.prepareTime = prepareTime;
+            this.callNo = callNo;
+            this.redisService = redisService;
         }
 
         @Override
         public Void call() {
             /*
-             * 此种模式，大量并发下不能保证c1、c2对应的事务"隔离性"
+             * 此种模式，大量并发下不能保证c1、c2对应的事务隔离性、一致性、“原子性”
              */
             /*if (Integer.parseInt(jediscli.get("c2")) > 9) {
                 jediscli.incrBy("c1", 1);
@@ -416,46 +188,55 @@ public class RedisServiceTest {
                 /*
                  * 乐观锁 可保证隔离性,手动实现一致性
                  */
-                // TimeUnit.MILLISECONDS.sleep(prepareTime); //分散开请求
-                /*jediscli.watch("c1", "c2");
-                if (Integer.parseInt(jediscli.get("c2")) > 9) {
-                    Transaction trans = jediscli.multi();
-                    trans.incrBy("c1", 1);
-                    trans.decrBy("c2", 1);
-                    List<Object> execed = trans.exec();
-                    LOGGER.info("callerName:{},execed result:{}", callName, execed);
-                }*/
+
+                // TimeUnit.MILLISECONDS.sleep(prepareTime); // 分散开请求
+                // jediscli.watch("c1", "c2");
+                /*Transaction trans = jediscli.multi();
+                trans.incrBy("c1", 1);// 增加订单商品数
+                TimeUnit.SECONDS.sleep(1);
+                trans.decrBy("c2", 1);// 减少库存量
+                LOGGER.info("C1:{}", redisService.getResource().get("c1"));
+                List<Object> execed = trans.exec();
+                LOGGER.info("callerName:{},execed result:{}", callName, execed);*/
                 
                 /*
                  * 抢单
                  */
-                /*String orderSn = "BJ:WJ-GM: 23:34:18";
+                /*String orderSn = "BJ:WJ-GM: 23:34:22";
                 jediscli.watch(orderSn);
-                if (!"1".equals(jediscli.get(orderSn))) {
+                
+                while (!"1".equals(jediscli.get(orderSn))) {
                     Transaction trans = jediscli.multi();
-                    trans.setex(orderSn, 10, "1");
-                    trans.lpush("orderSeque", callName + "_" + orderSn);
-                    List<Object> execed = trans.exec();
-                    LOGGER.info("callerName:{},execed result:{}", callName, execed);
-                }
-                LOGGER.info("callerName:{},orderSeque:{}", callName, jediscli.rpop("orderSeque"));*/
+                    trans.set(orderSn, "1");
+                    trans.set(orderSn + "_DRIVER", callName);
+                    if (callNo > 13) {
+                        List<Object> execed = trans.exec();
+                        LOGGER.info("callerName:{},execed result:{}", callName, execed);
+                    } else {
+                        trans.discard();
+                    }
+                
+                }*/
+
 
                 /*
-                 * 手动取消事务
+                 * 分布式锁
                  */
-                /*jediscli.watch("c1", "c2");
-                Transaction trans = jediscli.multi();
-                trans.incrBy("c1", 1);
-                trans.decrBy("c2", 1);
-                if (Integer.parseInt(jediscli.get("c2")) == 0) {
-                    trans.discard();
-                    return null;
+                String orderSn = "BJ:WJ-GM: 23:34:17";
+                String lockKey=orderSn+"|lock";
+                while (!"1".equals(jediscli.get(orderSn))) {
+                    if (!tryLock(jediscli, lockKey, callName, 10000)) {
+                        continue;
+                    }
+                    try {
+                        jediscli.set(orderSn, "1");
+                        jediscli.set(orderSn + "_DRIVER", callName);
+                        TimeUnit.SECONDS.sleep(15);
+                    } finally {
+                        releaseLock(jediscli, lockKey, callName);
+                    }
+                
                 }
-                List<Object> execed = trans.exec();
-                LOGGER.info("execed result:{}", execed);
-                for (Object object : execed) {
-                    LOGGER.info("callerName:{},execd:{}", callName, object.toString());
-                }*/
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -466,70 +247,61 @@ public class RedisServiceTest {
         }
     }
 
-
-
-    public static class ListConsumer implements Runnable {
-
-        private final String consumerName;
-        private Jedis jedis;
-
-        /**
-         * 构造函数
-         */
-        public ListConsumer(Jedis jedis, String consumerName) {
-            this.consumerName = consumerName;
-            this.jedis = jedis;
+    /**
+     * 尝试获取分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @param expireTime 超期时间 单位毫秒
+     *        第一个为key，我们使用key来当锁，因为key是唯一的。
+     *        第二个为value，我们传的是requestId，分布式锁要满足解铃还须系铃人，通过给value赋值为requestId，我们就知道这把锁是哪个请求加的了，在解锁的时候就可以有依据。
+     *        第三个为nxxx，这个参数我们填的是NX，意思是SET IF NOT EXIST，即当key不存在时，我们进行set操作；若key已经存在，则不做任何操作；
+     *        第四个为expx，这个参数我们传的是PX，意思是我们要给这个key加一个过期的设置，具体时间由第五个参数决定。
+     *        第五个为time，与第四个参数相呼应，代表key的过期时间。
+     * @return 是否获取成功
+     */
+    public static boolean tryLock(Jedis jedis, String lockKey, String requestId, int expireTime) {
+        String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
+        if (LOCK_SUCCESS.equals(result)) {
+            return true;
         }
+        return false;
+    }
 
-        /**
-         * @Author Ldl
-         * @Date 2018年1月4日
-         * @since 1.0.0
-         * @see java.lang.Runnable#run()
-         */
-        @Override
-        public void run() {
-            while (true) {
-                List<String> result = jedis.brpop(30 * 1000, "listqueue");
-                for (String s : result) {
-                    LOGGER.info("consumerName:" + consumerName + "-" + s);
-                }
-                try {
-                    if(consumerName.equals("消费者1")){
-                        TimeUnit.SECONDS.sleep(2);
-                    }else{
-                        TimeUnit.SECONDS.sleep(3);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
+    /**
+     * 释放分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @return 是否释放成功
+     */
+    public static boolean releaseLock(Jedis jedis, String lockKey, String requestId) {
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+        Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
+        if (RELEASE_SUCCESS.equals(result)) {
+            return true;
         }
+        return false;
 
     }
 
+    public static void wrongGetLock1(Jedis jedis, String lockKey, String requestId, int expireTime) {
+        Long result = jedis.setnx(lockKey, requestId);
 
-
-
-    @Test
-    public void testCyclicBarrier(){
-        cyclicBarrier = new CyclicBarrier(5, new Runnable() {
-            public void run() {
-                System.out.println("人到齐了,开会吧...");
-            }
-        });
-        for (int i = 0; i < 5; i++) {
-            new CyclicBarrierThread().start();
+        if (result == 1) {
+            // 若在这里程序突然崩溃，则无法设置过期时间，将发生死锁
+            jedis.expire(lockKey, expireTime);
         }
     }
 
-    @Test
-    public void testcountDownLatch() {
-        new BossThread().start();
-        for (int i = 0; i < 5; i++) {
-            new EmployeeThread().start();
+    public static void wrongReleaseLock2(Jedis jedis, String lockKey, String requestId) {
+
+        // 判断加锁与解锁是不是同一个客户端
+        if (requestId.equals(jedis.get(lockKey))) {
+            // 若在此时，这把锁突然不是这个客户端的，则会误解锁
+            jedis.del(lockKey);
         }
+
     }
 
 }
